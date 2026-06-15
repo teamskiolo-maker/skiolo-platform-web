@@ -7,7 +7,10 @@ import { apiFetch } from "@/lib/api";
 interface Course {
   id: string;
   title: string;
+  description: string;
   pricePaise: number;
+  thumbnail: string | null;
+  accessUrl: string | null;
   isPublished: boolean;
 }
 
@@ -17,13 +20,19 @@ export default function CoursesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Form state
+  // Form state for Create
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [pricePaise, setPricePaise] = useState("");
+  const [accessUrl, setAccessUrl] = useState("");
   const [isPublished, setIsPublished] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  // Edit state
+  const [editCourse, setEditCourse] = useState<Course | null>(null);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   const fetchCourses = async () => {
     try {
@@ -50,12 +59,14 @@ export default function CoursesPage() {
       setFormError(null);
       const token = await getToken();
       
-      const payload = {
+      const payload: any = {
         title,
         description,
-        pricePaise: parseInt(pricePaise, 10),
+        pricePaise: Number(pricePaise),
         isPublished,
       };
+
+      if (accessUrl) payload.accessUrl = accessUrl;
 
       await apiFetch("/admin/courses", { method: "POST", token, body: payload });
       
@@ -63,6 +74,7 @@ export default function CoursesPage() {
       setTitle("");
       setDescription("");
       setPricePaise("");
+      setAccessUrl("");
       setIsPublished(false);
       
       // Refresh list
@@ -71,6 +83,50 @@ export default function CoursesPage() {
       setFormError(err instanceof Error ? err.message : String(err));
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handlePublishToggle = async (courseId: string, currentStatus: boolean) => {
+    try {
+      const token = await getToken();
+      await apiFetch(`/admin/courses/${courseId}`, {
+        method: "PATCH",
+        token,
+        body: { isPublished: !currentStatus }
+      });
+      fetchCourses();
+    } catch (err) {
+      alert("Failed to toggle publish status");
+    }
+  };
+
+  const handleEditSave = async () => {
+    if (!editCourse) return;
+    try {
+      setEditSubmitting(true);
+      setEditError(null);
+      const token = await getToken();
+      const payload: any = {
+        title: editCourse.title,
+        description: editCourse.description,
+        pricePaise: Number(editCourse.pricePaise),
+        isPublished: editCourse.isPublished
+      };
+
+      if (editCourse.thumbnail) payload.thumbnail = editCourse.thumbnail;
+      if (editCourse.accessUrl) payload.accessUrl = editCourse.accessUrl;
+
+      await apiFetch(`/admin/courses/${editCourse.id}`, {
+        method: "PATCH",
+        token,
+        body: payload
+      });
+      setEditCourse(null);
+      fetchCourses();
+    } catch (err: any) {
+      setEditError(err.message || "Failed to update course");
+    } finally {
+      setEditSubmitting(false);
     }
   };
 
@@ -93,6 +149,7 @@ export default function CoursesPage() {
                   <th className="px-4 py-3">Title</th>
                   <th className="px-4 py-3">Price</th>
                   <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -104,6 +161,22 @@ export default function CoursesPage() {
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${c.isPublished ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
                         {c.isPublished ? "Published" : "Draft"}
                       </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => setEditCourse({...c})}
+                          className="text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          onClick={() => handlePublishToggle(c.id, c.isPublished)}
+                          className="text-gray-600 hover:text-gray-800 font-medium"
+                        >
+                          {c.isPublished ? "Unpublish" : "Publish"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -145,6 +218,15 @@ export default function CoursesPage() {
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Course access link (e.g. external LMS URL)</label>
+            <input 
+              type="url" 
+              value={accessUrl} 
+              onChange={(e) => setAccessUrl(e.target.value)} 
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+            />
+          </div>
           <div className="flex items-center gap-2">
             <input 
               type="checkbox" 
@@ -164,6 +246,81 @@ export default function CoursesPage() {
           </button>
         </div>
       </section>
+
+      {/* Edit Modal */}
+      {editCourse && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4">Edit Course</h2>
+            {editError && <p className="text-sm text-red-600 mb-4">{editError}</p>}
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                <input 
+                  type="text" 
+                  value={editCourse.title} 
+                  onChange={(e) => setEditCourse({ ...editCourse, title: e.target.value })} 
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea 
+                  value={editCourse.description} 
+                  onChange={(e) => setEditCourse({ ...editCourse, description: e.target.value })} 
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                  rows={3}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Price in paise</label>
+                <input 
+                  type="number" 
+                  value={editCourse.pricePaise} 
+                  onChange={(e) => setEditCourse({ ...editCourse, pricePaise: Number(e.target.value) })} 
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Course access link</label>
+                <input 
+                  type="url" 
+                  value={editCourse.accessUrl || ""} 
+                  onChange={(e) => setEditCourse({ ...editCourse, accessUrl: e.target.value })} 
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <input 
+                  type="checkbox" 
+                  id="editIsPublished"
+                  checked={editCourse.isPublished} 
+                  onChange={(e) => setEditCourse({ ...editCourse, isPublished: e.target.checked })} 
+                  className="rounded border-gray-300 text-black focus:ring-black"
+                />
+                <label htmlFor="editIsPublished" className="text-sm font-medium text-gray-700">Published</label>
+              </div>
+              
+              <div className="flex justify-end gap-3 mt-6">
+                <button 
+                  onClick={() => setEditCourse(null)}
+                  className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleEditSave}
+                  disabled={editSubmitting}
+                  className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white shadow hover:bg-gray-800 disabled:opacity-50"
+                >
+                  {editSubmitting ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
