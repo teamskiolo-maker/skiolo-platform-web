@@ -134,9 +134,11 @@ export default function CourseDetailPage() {
       <header className="flex items-center justify-between p-6 max-w-5xl mx-auto border-b border-gray-200 bg-white shadow-sm mb-8">
         <div className="flex items-center gap-6">
           <Link href="/" className="text-xl font-bold tracking-tight">SKIOLO</Link>
-          <Link href="/courses" className="text-sm font-medium hover:underline text-gray-600">Courses</Link>
+          <Link href="/courses" className="text-sm font-medium hover:underline text-gray-900">Courses</Link>
+          <Link href="/workshops" className="text-sm font-medium hover:underline text-gray-600">Workshops</Link>
           <SignedIn>
             <Link href="/my-courses" className="text-sm font-medium hover:underline text-gray-600">My Courses</Link>
+            <Link href="/my-bookings" className="text-sm font-medium hover:underline text-gray-600">My Bookings</Link>
           </SignedIn>
         </div>
       </header>
