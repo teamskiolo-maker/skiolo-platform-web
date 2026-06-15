@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth, SignedIn, RedirectToSignIn } from "@clerk/nextjs";
 import { apiFetch } from "@/lib/api";
+import { MediaBanner } from "@/components/MediaBanner";
 
 export default function MyCoursesPage() {
   const { isLoaded, isSignedIn, getToken } = useAuth();
@@ -58,13 +59,7 @@ export default function MyCoursesPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {courses.map((course) => (
               <div key={course.id} className="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition">
-                {course.thumbnail ? (
-                  <img src={course.thumbnail} alt={course.title} className="w-full h-48 object-cover" />
-                ) : (
-                  <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-400">No image</span>
-                  </div>
-                )}
+                <MediaBanner imageUrl={course.thumbnail} title={course.title} variant="course" className="w-full h-48" />
                 <div className="p-4">
                   <h2 className="text-xl font-semibold mb-4 line-clamp-2">{course.title}</h2>
                   <Link href={`/courses/${course.slug}`}>

@@ -6,6 +6,7 @@ import { useAuth, useUser, SignedIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { apiFetch } from "@/lib/api";
 import { loadRazorpayScript } from "@/lib/razorpay";
+import { MediaBanner } from "@/components/MediaBanner";
 
 export default function CourseDetailPage() {
   const params = useParams();
@@ -141,13 +142,7 @@ export default function CourseDetailPage() {
       </header>
 
       <div className="max-w-3xl mx-auto p-6 bg-white border rounded-lg shadow-sm">
-        {course.thumbnail ? (
-          <img src={course.thumbnail} alt={course.title} className="w-full h-64 object-cover rounded-md mb-6 bg-gray-100" />
-        ) : (
-          <div className="w-full h-64 bg-gray-200 rounded-md mb-6 flex items-center justify-center">
-            <span className="text-gray-400">No image</span>
-          </div>
-        )}
+        <MediaBanner imageUrl={course.thumbnail} title={course.title} variant="course" className="w-full h-64 rounded-md mb-6" />
         <h1 className="text-4xl font-bold mb-4">{course.title}</h1>
         <p className="text-gray-700 text-lg mb-8 whitespace-pre-line">{course.description}</p>
         

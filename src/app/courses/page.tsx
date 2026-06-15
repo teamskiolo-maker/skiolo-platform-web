@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SignedIn } from "@clerk/nextjs";
 import { apiFetch } from "@/lib/api";
+import { MediaBanner } from "@/components/MediaBanner";
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<any[]>([]);
@@ -44,13 +45,7 @@ export default function CoursesPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {courses.map((course) => (
             <div key={course.id} className="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition">
-              {course.thumbnail ? (
-                <img src={course.thumbnail} alt={course.title} className="w-full h-48 object-cover" />
-              ) : (
-                <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-400">No image</span>
-                </div>
-              )}
+              <MediaBanner imageUrl={course.thumbnail} title={course.title} variant="course" className="w-full h-48" />
               <div className="p-4">
                 <h2 className="text-xl font-semibold mb-2 line-clamp-1">{course.title}</h2>
                 <p className="text-gray-600 mb-4 line-clamp-2 min-h-[3rem]">{course.description}</p>
