@@ -20,12 +20,34 @@ export default function WorkshopDetailPage() {
   const [booking, setBooking] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error" | "info">("info");
+  const [userBooking, setUserBooking] = useState<any>(null);
+  const [checkingBooking, setCheckingBooking] = useState(false);
+
+  const fetchUserBooking = async (workshopId: string) => {
+    if (!isSignedIn) return;
+    setCheckingBooking(true);
+    try {
+      const token = await getToken();
+      if (token) {
+        const bookings = await apiFetch<any[]>("/me/bookings", { method: "GET", token });
+        const currentBooking = bookings.find((b: any) => b.workshopId === workshopId || b.workshop?.id === workshopId);
+        setUserBooking(currentBooking || null);
+      }
+    } catch (err) {
+      console.error("Failed to fetch booking status", err);
+    } finally {
+      setCheckingBooking(false);
+    }
+  };
 
   useEffect(() => {
     async function loadWorkshop() {
       try {
         const data = await apiFetch<any>(`/workshops/${slug}`, { method: "GET" });
         setWorkshop(data);
+        if (isSignedIn) {
+          fetchUserBooking(data.id);
+        }
       } catch (err) {
         console.error("Failed to load workshop", err);
       } finally {
@@ -33,7 +55,8 @@ export default function WorkshopDetailPage() {
       }
     }
     loadWorkshop();
-  }, [slug]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug, isSignedIn]);
 
   const formatIST = (dateString: string) => {
     return new Intl.DateTimeFormat('en-IN', {
@@ -74,6 +97,7 @@ export default function WorkshopDetailPage() {
         setMessage(`This workshop is full. You've been added to the waitlist at position ${response.position}. We'll notify you if a seat opens.`);
         setMessageType("info");
         setBooking(false);
+        fetchUserBooking(workshop.id);
         return;
       }
 
@@ -93,9 +117,10 @@ export default function WorkshopDetailPage() {
           name: "SKIOLO",
           description: response.workshopTitle,
           order_id: response.orderId,
-          handler: function (rzpRes: any) {
+          handler: async function (rzpRes: any) {
             setMessage("Payment received, confirming your booking shortly...");
             setMessageType("success");
+            await fetchUserBooking(workshop.id);
           },
           prefill: {
             email: user?.primaryEmailAddress?.emailAddress || "",
@@ -177,13 +202,62 @@ export default function WorkshopDetailPage() {
             <div className="text-3xl font-extrabold">₹{(workshop.pricePaise / 100).toFixed(2)}</div>
           </div>
           
-          <button 
-            onClick={handleBook} 
-            disabled={booking}
-            className="bg-black text-white px-8 py-3 rounded-md hover:bg-gray-800 transition font-medium disabled:opacity-50"
-          >
-            {booking ? "Processing..." : "Book Now"}
-          </button>
+          {checkingBooking ? (
+            <button disabled className="bg-gray-300 text-gray-500 px-8 py-3 rounded-md font-medium cursor-not-allowed">
+              Loading...
+            </button>
+          ) : (!isSignedIn || !userBooking || userBooking.status === "CANCELLED") ? (
+            <button 
+              onClick={handleBook} 
+              disabled={booking}
+              className="bg-black text-white px-8 py-3 rounded-md hover:bg-gray-800 transition font-medium disabled:opacity-50"
+            >
+              {booking ? "Processing..." : "Book Now"}
+            </button>
+          ) : userBooking.status === "CONFIRMED" ? (
+            <div className="flex flex-col items-end gap-2">
+              <div className="text-green-600 font-semibold flex items-center gap-1">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                Booked ✓ You're confirmed
+              </div>
+              {workshop.mode === "ONLINE" && workshop.zoomJoinUrl && (
+                <Link href={workshop.zoomJoinUrl} target="_blank" className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition font-medium text-sm">
+                  Join link
+                </Link>
+              )}
+              {workshop.mode === "OFFLINE" && workshop.venue && (
+                <div className="text-sm text-gray-600">
+                  Venue: {workshop.venue}
+                </div>
+              )}
+            </div>
+          ) : userBooking.status === "PENDING_PAYMENT" ? (
+            <div className="flex flex-col items-end gap-2">
+              <div className="text-orange-600 font-semibold">Payment pending — complete your payment</div>
+              <Link href="/my-bookings" className="bg-orange-600 text-white px-6 py-2 rounded-md hover:bg-orange-700 transition font-medium text-sm text-center">
+                Go to My Bookings
+              </Link>
+            </div>
+          ) : userBooking.status === "WAITLISTED" ? (
+            <div className="text-gray-600 font-semibold bg-gray-200 px-6 py-3 rounded-md">
+              You're on the waitlist {userBooking.waitlistPosition ? `(position ${userBooking.waitlistPosition})` : ""}
+            </div>
+          ) : userBooking.status === "OFFERED" ? (
+            <div className="flex flex-col items-end gap-2">
+              <div className="text-blue-600 font-semibold">A seat has been offered to you — pay to confirm</div>
+              <Link href="/my-bookings" className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition font-medium text-sm text-center">
+                Go to My Bookings
+              </Link>
+            </div>
+          ) : (
+            <button 
+              onClick={handleBook} 
+              disabled={booking}
+              className="bg-black text-white px-8 py-3 rounded-md hover:bg-gray-800 transition font-medium disabled:opacity-50"
+            >
+              {booking ? "Processing..." : "Book Now"}
+            </button>
+          )}
         </div>
 
         {message && (
