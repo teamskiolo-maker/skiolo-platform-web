@@ -69,17 +69,7 @@ export default function MyBookingsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
-      <header className="flex items-center justify-between p-6 max-w-5xl mx-auto border-b border-gray-200 bg-white shadow-sm mb-8">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="text-xl font-bold tracking-tight">SKIOLO</Link>
-          <Link href="/courses" className="text-sm font-medium hover:underline text-gray-600">Courses</Link>
-          <Link href="/workshops" className="text-sm font-medium hover:underline text-gray-600">Workshops</Link>
-          <SignedIn>
-            <Link href="/my-courses" className="text-sm font-medium hover:underline text-gray-600">My Courses</Link>
-            <Link href="/my-bookings" className="text-sm font-medium hover:underline text-gray-900">My Bookings</Link>
-          </SignedIn>
-        </div>
-      </header>
+
 
       <div className="max-w-5xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-8">My Bookings</h1>

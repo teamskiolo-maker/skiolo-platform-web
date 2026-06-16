@@ -15,6 +15,8 @@ const inter = Inter({
   weight: ["400", "500", "600"],
 });
 
+import { PublicLayoutWrapper } from "@/components/layout/PublicLayoutWrapper";
+
 export const metadata: Metadata = {
   title: "SKIOLO Platform",
   description: "Premium education platform",
@@ -31,7 +33,9 @@ export default function RootLayout({
         <body
           className={`${fraunces.variable} ${inter.variable} font-sans antialiased`}
         >
-          {children}
+          <PublicLayoutWrapper>
+            {children}
+          </PublicLayoutWrapper>
         </body>
       </html>
     </ClerkProvider>
