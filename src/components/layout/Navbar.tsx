@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Logo } from "@/components/Logo";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -34,7 +35,7 @@ export function Navbar() {
             {isActive && (
               <motion.div
                 layoutId="navbar-active"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-brand"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-navy"
               />
             )}
           </Link>
@@ -50,12 +51,11 @@ export function Navbar() {
 
   return (
     <FadeUp delay={0.1} className="sticky top-0 z-50">
-      <header className="w-full bg-paper/80 backdrop-blur border-b border-line">
+      <header className="w-full bg-paper/80 backdrop-blur border-b border-line relative">
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-accent-blue via-accent-green to-accent-coral" />
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link href="/" className="font-display font-semibold text-xl text-ink tracking-tight2">
-              SKIOLO
-            </Link>
+            <Logo className="h-8 w-auto" />
             <nav className="hidden md:flex items-center gap-6">
               <DesktopLinks />
             </nav>
@@ -99,7 +99,7 @@ export function Navbar() {
                   <Link 
                     key={link.href} 
                     href={link.href} 
-                    className={`text-base font-medium ${isActive ? "text-emerald-brand" : "text-ink-muted hover:text-ink"}`}
+                    className={`text-base font-medium ${isActive ? "text-navy" : "text-ink-muted hover:text-ink"}`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {link.name}

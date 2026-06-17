@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Space_Grotesk, Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
-const fraunces = Fraunces({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-fraunces",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-space-grotesk",
+  weight: ["500", "600", "700"],
 });
 
 const inter = Inter({
@@ -31,7 +31,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body
-          className={`${fraunces.variable} ${inter.variable} font-sans antialiased`}
+          className={`${spaceGrotesk.variable} ${inter.variable} font-sans antialiased`}
         >
           <PublicLayoutWrapper>
             {children}

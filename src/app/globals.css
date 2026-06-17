@@ -18,8 +18,8 @@ body {
 }
 
 ::selection {
-  background-color: #E7F1EE;
-  color: #0B5D4E;
+  background-color: #EAF0FA;
+  color: #0E2F66;
 }
 
 @layer utilities {
