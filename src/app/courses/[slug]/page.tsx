@@ -6,7 +6,8 @@ import { useAuth, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { apiFetch } from "@/lib/api";
 import { loadRazorpayScript } from "@/lib/razorpay";
-import { MediaBanner } from "@/components/MediaBanner";
+import { CourseTierBanner, CourseTier } from "@/components/CourseTierBanner";
+import { BulletList } from "@/components/BulletList";
 import { FadeUp } from "@/components/motion/FadeUp";
 import { Button } from "@/components/ui/Button";
 import { AlertCircle, CheckCircle2, ArrowLeft } from "lucide-react";
@@ -159,6 +160,9 @@ export default function CourseDetailPage() {
     maximumFractionDigits: 0,
   }).format(course.pricePaise / 100);
 
+  // Quick fallback tier calculation since we don't have the full list
+  const tier: CourseTier = course.pricePaise >= 1000000 ? "PREMIUM" : course.pricePaise >= 400000 ? "STANDARD" : "BASIC";
+
   return (
     <div className="min-h-screen bg-paper text-ink font-sans pb-32">
       <div className="max-w-6xl mx-auto px-6 pt-12">
@@ -173,24 +177,29 @@ export default function CourseDetailPage() {
           <div className="lg:col-span-8">
             <FadeUp delay={0.1}>
               <div className="rounded-2xl2 overflow-hidden mb-10 shadow-soft border border-line">
-                <MediaBanner 
-                  imageUrl={course.thumbnail} 
-                  title={course.title} 
-                  variant="course" 
-                  className="w-full aspect-video" 
+                <CourseTierBanner 
+                  tier={tier} 
+                  className="w-full aspect-video md:aspect-[21/9]" 
                 />
               </div>
 
               <div className="mb-12">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest border ${
+                    tier === "PREMIUM" ? "bg-[#F2B53C] text-[#050D22] border-transparent" :
+                    tier === "STANDARD" ? "bg-[#2E73C9] text-white border-transparent" :
+                    "bg-[#0E2F66] text-white border-transparent"
+                  }`}>
+                    {tier} TIER
+                  </span>
+                </div>
+                
                 <h1 className="text-4xl md:text-5xl font-display font-bold text-ink tracking-tight2 mb-6 leading-tight">
                   {course.title}
                 </h1>
                 
-                <div className="prose prose-lg prose-slate max-w-none text-ink-soft">
-                  {/* Since description is likely plain text based on the previous code, we just render it with whitespace-pre-line. If it's HTML, we'd use dangerouslySetInnerHTML */}
-                  <p className="whitespace-pre-line leading-relaxed">
-                    {course.description}
-                  </p>
+                <div className="mt-8">
+                  <BulletList text={course.description} />
                 </div>
               </div>
             </FadeUp>
@@ -213,10 +222,10 @@ export default function CourseDetailPage() {
                 <div className="flex flex-col gap-4">
                   {isEnrolled ? (
                     <Button 
-                      variant="secondary"
+                      variant="primary"
                       size="lg"
                       onClick={handleAccess}
-                      className="w-full justify-center py-4 text-base bg-navy-tint text-navy border-none hover:bg-navy/20"
+                      className="w-full justify-center py-4 text-base shadow-soft"
                     >
                       Access Course
                     </Button>

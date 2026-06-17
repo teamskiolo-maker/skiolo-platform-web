@@ -2,9 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useAuth, SignedIn, RedirectToSignIn } from "@clerk/nextjs";
+import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import { apiFetch } from "@/lib/api";
-import { MediaBanner } from "@/components/MediaBanner";
+import { CourseTierBanner, CourseTier } from "@/components/CourseTierBanner";
+import { FadeUp } from "@/components/motion/FadeUp";
+import { Stagger } from "@/components/motion/Stagger";
+import { Button } from "@/components/ui/Button";
+import { BookOpen } from "lucide-react";
 
 export default function MyCoursesPage() {
   const { isLoaded, isSignedIn, getToken } = useAuth();
@@ -39,40 +43,73 @@ export default function MyCoursesPage() {
     return <RedirectToSignIn />;
   }
 
+  const getTier = (pricePaise?: number): CourseTier => {
+    if (!pricePaise) return "STANDARD";
+    return pricePaise >= 1000000 ? "PREMIUM" : pricePaise >= 400000 ? "STANDARD" : "BASIC";
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
+    <div className="min-h-screen bg-paper text-ink font-sans pb-32">
+      <div className="max-w-6xl mx-auto px-6 pt-12 md:pt-20">
+        <FadeUp>
+          <div className="mb-12">
+            <h1 className="text-4xl md:text-5xl font-display font-bold tracking-tight2 mb-4">
+              My <span className="font-serif-accent text-navy italic">Courses</span>
+            </h1>
+            <p className="text-ink-muted text-lg max-w-2xl">
+              Everything you&apos;ve unlocked, in one place.
+            </p>
+          </div>
+        </FadeUp>
 
-
-      <div className="max-w-5xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-8">My Courses</h1>
         {loading ? (
-          <div className="text-center py-10 text-gray-500">Loading your courses...</div>
+          <div className="text-center py-20 text-ink-muted flex flex-col items-center justify-center">
+            <div className="w-8 h-8 border-4 border-navy/20 border-t-navy rounded-full animate-spin mb-4" />
+            <p className="font-medium">Loading your courses...</p>
+          </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {courses.map((course) => (
-              <div key={course.id} className="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition">
-                <MediaBanner imageUrl={course.thumbnail} title={course.title} variant="course" className="w-full h-48" />
-                <div className="p-4">
-                  <h2 className="text-xl font-semibold mb-4 line-clamp-2">{course.title}</h2>
-                  <Link href={`/courses/${course.slug}`}>
-                    <button className="w-full bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition text-sm font-medium">
-                      Access Course
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            ))}
+          <Stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {courses.map((course) => {
+              const tier = getTier(course.pricePaise);
+              return (
+                <FadeUp key={course.id} className="h-full">
+                  <div className="relative h-full flex flex-col bg-paper-card border border-line rounded-2xl2 overflow-hidden shadow-soft transition-all duration-300 hover:shadow-soft-lg hover:-translate-y-1">
+                    <CourseTierBanner 
+                      tier={tier} 
+                      className="w-full aspect-video" 
+                    />
+                    <div className="p-6 flex flex-col flex-1">
+                      <h2 className="text-xl font-display font-semibold text-ink tracking-tight2 line-clamp-2 mb-6 flex-1">
+                        {course.title}
+                      </h2>
+                      <Link href={`/courses/${course.slug}`} className="mt-auto">
+                        <Button variant="primary" className="w-full justify-center shadow-sm">
+                          Access Course
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </FadeUp>
+              );
+            })}
+            
             {courses.length === 0 && (
-              <div className="col-span-full text-center py-12 bg-white rounded-lg border border-dashed border-gray-300">
-                <p className="text-gray-600 mb-4">You haven&apos;t purchased any courses yet.</p>
+              <div className="col-span-full py-24 px-6 text-center bg-white rounded-2xl2 border border-line shadow-sm">
+                <div className="w-16 h-16 bg-navy/5 rounded-2xl flex items-center justify-center mx-auto mb-6 text-navy">
+                  <BookOpen className="w-8 h-8" />
+                </div>
+                <h3 className="text-xl font-display font-semibold text-ink mb-2">No courses yet</h3>
+                <p className="text-ink-muted mb-8 max-w-md mx-auto">
+                  You haven&apos;t enrolled in any courses yet. Start your journey by exploring our available programs.
+                </p>
                 <Link href="/courses">
-                  <button className="bg-gray-100 text-gray-900 px-6 py-2 rounded-md hover:bg-gray-200 transition text-sm font-medium">
+                  <Button variant="primary" size="lg" className="shadow-soft">
                     Browse Courses
-                  </button>
+                  </Button>
                 </Link>
               </div>
             )}
-          </div>
+          </Stagger>
         )}
       </div>
     </div>

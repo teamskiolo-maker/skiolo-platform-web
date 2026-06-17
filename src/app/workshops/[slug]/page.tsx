@@ -6,7 +6,11 @@ import { useAuth, useUser, SignedIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { apiFetch } from "@/lib/api";
 import { loadRazorpayScript } from "@/lib/razorpay";
-import { MediaBanner } from "@/components/MediaBanner";
+import { WorkshopBanner } from "@/components/WorkshopCard";
+import { BulletList } from "@/components/BulletList";
+import { FadeUp } from "@/components/motion/FadeUp";
+import { Button } from "@/components/ui/Button";
+import { AlertCircle, CheckCircle2, ArrowLeft, CalendarDays, MapPin, Video } from "lucide-react";
 
 export default function WorkshopDetailPage() {
   const params = useParams();
@@ -153,117 +157,200 @@ export default function WorkshopDetailPage() {
     return <div className="p-8 text-center min-h-screen flex items-center justify-center">Workshop not found.</div>;
   }
 
+  const formattedPrice = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(workshop.pricePaise / 100);
+
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
+    <div className="min-h-screen bg-paper text-ink font-sans pb-32">
+      <div className="max-w-6xl mx-auto px-6 pt-12">
+        <FadeUp>
+          <Link href="/workshops" className="inline-flex items-center gap-2 text-ink-muted hover:text-navy font-medium text-sm mb-8 transition-colors">
+            <ArrowLeft className="w-4 h-4" /> Back to workshops
+          </Link>
+        </FadeUp>
 
-
-      <div className="max-w-3xl mx-auto p-6 bg-white border rounded-lg shadow-sm">
-        <MediaBanner imageUrl={workshop.thumbnail} title={workshop.title} variant="workshop" className="w-full h-64 rounded-md mb-6" />
-        
-        <div className="flex items-center gap-3 mb-4">
-          <h1 className="text-4xl font-bold">{workshop.title}</h1>
-          <span className={`text-sm px-3 py-1 rounded-full font-medium ${workshop.mode === 'ONLINE' ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'}`}>
-            {workshop.mode}
-          </span>
-        </div>
-        
-        <div className="bg-gray-50 border rounded-md p-4 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
-          <div>
-            <strong className="block text-gray-900 mb-1">Starts At</strong>
-            {formatIST(workshop.startsAt)}
-          </div>
-          <div>
-            <strong className="block text-gray-900 mb-1">Ends At</strong>
-            {formatIST(workshop.endsAt)}
-          </div>
-          {workshop.mode === "OFFLINE" && workshop.venue && (
-            <div className="sm:col-span-2">
-              <strong className="block text-gray-900 mb-1">Venue</strong>
-              {workshop.venue}
-            </div>
-          )}
-        </div>
-
-        <p className="text-gray-700 text-lg mb-8 whitespace-pre-line">{workshop.description}</p>
-        
-        <div className="flex items-center justify-between p-6 bg-gray-50 rounded-md border">
-          <div>
-            <span className="text-sm text-gray-500 uppercase tracking-wide">Price</span>
-            <div className="text-3xl font-extrabold">₹{(workshop.pricePaise / 100).toFixed(2)}</div>
-          </div>
-          
-          {checkingBooking ? (
-            <button disabled className="bg-gray-300 text-gray-500 px-8 py-3 rounded-md font-medium cursor-not-allowed">
-              Loading...
-            </button>
-          ) : (!isSignedIn || !userBooking || userBooking.status === "CANCELLED") ? (
-            <button 
-              onClick={handleBook} 
-              disabled={booking}
-              className="bg-black text-white px-8 py-3 rounded-md hover:bg-gray-800 transition font-medium disabled:opacity-50"
-            >
-              {booking ? "Processing..." : "Book Now"}
-            </button>
-          ) : userBooking.status === "CONFIRMED" ? (
-            <div className="flex flex-col items-end gap-2">
-              <div className="text-green-600 font-semibold flex items-center gap-1">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                Booked ✓ You&apos;re confirmed
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          {/* Main Content (Left) */}
+          <div className="lg:col-span-8">
+            <FadeUp delay={0.1}>
+              <div className="rounded-2xl2 overflow-hidden mb-10 shadow-soft border border-line">
+                <WorkshopBanner mode={workshop.mode} className="w-full aspect-video md:aspect-[21/9]" />
               </div>
-              {workshop.mode === "ONLINE" && workshop.zoomJoinUrl && (
-                <Link href={workshop.zoomJoinUrl} target="_blank" className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition font-medium text-sm">
-                  Join link
-                </Link>
-              )}
-              {workshop.mode === "OFFLINE" && workshop.venue && (
-                <div className="text-sm text-gray-600">
-                  Venue: {workshop.venue}
-                </div>
-              )}
-            </div>
-          ) : userBooking.status === "PENDING_PAYMENT" ? (
-            <div className="flex flex-col items-end gap-2">
-              <div className="text-orange-600 font-semibold">Payment pending — complete your payment</div>
-              <Link href="/my-bookings" className="bg-orange-600 text-white px-6 py-2 rounded-md hover:bg-orange-700 transition font-medium text-sm text-center">
-                Go to My Bookings
-              </Link>
-            </div>
-          ) : userBooking.status === "WAITLISTED" ? (
-            <div className="text-gray-600 font-semibold bg-gray-200 px-6 py-3 rounded-md">
-              You&apos;re on the waitlist {userBooking.waitlistPosition ? `(position ${userBooking.waitlistPosition})` : ""}
-            </div>
-          ) : userBooking.status === "OFFERED" ? (
-            <div className="flex flex-col items-end gap-2">
-              <div className="text-blue-600 font-semibold">A seat has been offered to you — pay to confirm</div>
-              <Link href="/my-bookings" className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition font-medium text-sm text-center">
-                Go to My Bookings
-              </Link>
-            </div>
-          ) : (
-            <button 
-              onClick={handleBook} 
-              disabled={booking}
-              className="bg-black text-white px-8 py-3 rounded-md hover:bg-gray-800 transition font-medium disabled:opacity-50"
-            >
-              {booking ? "Processing..." : "Book Now"}
-            </button>
-          )}
-        </div>
 
-        {message && (
-          <div className={`mt-6 p-4 rounded-md border ${
-            messageType === "error" ? "bg-red-50 text-red-700 border-red-200" : 
-            messageType === "success" ? "bg-green-50 text-green-700 border-green-200" : 
-            "bg-blue-50 text-blue-700 border-blue-200"
-          }`}>
-            <p>{message}</p>
-            {messageType === "success" && (
-              <Link href="/my-bookings" className="mt-3 block text-sm underline font-medium hover:text-green-900">
-                Refresh status in My Bookings
-              </Link>
-            )}
+              <div className="mb-12">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase border ${
+                    workshop.mode === 'ONLINE' 
+                      ? 'text-[#2E73C9] bg-[#2E73C9]/10 border-[#2E73C9]/20' 
+                      : 'text-[#F2B53C] bg-[#F2B53C]/10 border-[#F2B53C]/20'
+                  }`}>
+                    {workshop.mode === 'ONLINE' ? <Video className="w-3 h-3 mr-1.5" /> : <MapPin className="w-3 h-3 mr-1.5" />}
+                    {workshop.mode}
+                  </span>
+                </div>
+                
+                <h1 className="text-4xl md:text-5xl font-display font-bold text-ink tracking-tight2 mb-8 leading-tight">
+                  {workshop.title}
+                </h1>
+                
+                <div className="flex flex-wrap gap-4 mb-10">
+                  <div className="flex-1 min-w-[200px] bg-white border border-line rounded-xl p-4 flex items-start gap-4 shadow-sm">
+                    <div className="w-10 h-10 rounded-lg bg-navy/5 flex items-center justify-center shrink-0">
+                      <CalendarDays className="w-5 h-5 text-navy" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-widest text-ink-muted mb-1">Starts</p>
+                      <p className="text-sm font-medium text-ink">{formatIST(workshop.startsAt)}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 min-w-[200px] bg-white border border-line rounded-xl p-4 flex items-start gap-4 shadow-sm">
+                    <div className="w-10 h-10 rounded-lg bg-navy/5 flex items-center justify-center shrink-0">
+                      <CalendarDays className="w-5 h-5 text-navy opacity-70" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-widest text-ink-muted mb-1">Ends</p>
+                      <p className="text-sm font-medium text-ink">{formatIST(workshop.endsAt)}</p>
+                    </div>
+                  </div>
+                  
+                  {workshop.mode === "OFFLINE" && workshop.venue && (
+                    <div className="w-full bg-white border border-line rounded-xl p-4 flex items-start gap-4 shadow-sm">
+                      <div className="w-10 h-10 rounded-lg bg-[#F2B53C]/10 flex items-center justify-center shrink-0">
+                        <MapPin className="w-5 h-5 text-[#F2B53C]" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-widest text-ink-muted mb-1">Venue</p>
+                        <p className="text-sm font-medium text-ink">{workshop.venue}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="mt-8">
+                  <h3 className="text-xl font-display font-semibold mb-4 text-ink">About this workshop</h3>
+                  <BulletList text={workshop.description} />
+                </div>
+              </div>
+            </FadeUp>
           </div>
-        )}
+
+          {/* Sidebar CTA (Right) */}
+          <div className="lg:col-span-4 lg:sticky lg:top-32">
+            <FadeUp delay={0.2}>
+              <div className="bg-white border border-line rounded-2xl2 p-8 shadow-soft-lg relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-navy/5 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/2" />
+                
+                <div className="mb-8">
+                  <span className="text-xs font-bold uppercase tracking-widest text-ink-muted block mb-2">Registration</span>
+                  <div className="text-4xl font-display font-bold text-navy">
+                    {formattedPrice}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-4">
+                  {checkingBooking ? (
+                    <Button variant="secondary" size="lg" disabled className="w-full justify-center py-4 text-base">
+                      <div className="w-4 h-4 border-2 border-navy/30 border-t-navy rounded-full animate-spin mr-2" />
+                      Loading...
+                    </Button>
+                  ) : (!isSignedIn || !userBooking || userBooking.status === "CANCELLED") ? (
+                    <Button 
+                      variant="primary" 
+                      size="lg" 
+                      onClick={handleBook} 
+                      disabled={booking}
+                      className="w-full justify-center py-4 text-base shadow-soft"
+                    >
+                      {booking ? (
+                        <span className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Processing...
+                        </span>
+                      ) : "Book Now"}
+                    </Button>
+                  ) : userBooking.status === "CONFIRMED" ? (
+                    <div className="flex flex-col gap-3">
+                      <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-3 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold">
+                        <CheckCircle2 className="w-4 h-4" />
+                        Booked & Confirmed
+                      </div>
+                      {workshop.mode === "ONLINE" && workshop.zoomJoinUrl && (
+                        <Link href={workshop.zoomJoinUrl} target="_blank" className="w-full">
+                          <Button variant="primary" className="w-full justify-center py-3 bg-[#2E73C9] hover:bg-[#235BA0]">
+                            Join Link
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  ) : userBooking.status === "PENDING_PAYMENT" ? (
+                    <div className="flex flex-col gap-3">
+                      <div className="bg-orange-50 border border-orange-200 text-orange-800 p-3 rounded-xl flex items-center justify-center text-sm font-semibold text-center">
+                        Payment pending — complete your payment
+                      </div>
+                      <Link href="/my-bookings" className="w-full">
+                        <Button variant="primary" className="w-full justify-center py-3">
+                          Go to My Bookings
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : userBooking.status === "WAITLISTED" ? (
+                    <div className="bg-gray-100 border border-gray-200 text-gray-700 p-4 rounded-xl text-center text-sm font-semibold">
+                      You&apos;re on the waitlist {userBooking.waitlistPosition ? `(position ${userBooking.waitlistPosition})` : ""}
+                    </div>
+                  ) : userBooking.status === "OFFERED" ? (
+                    <div className="flex flex-col gap-3">
+                      <div className="bg-[#2E73C9]/10 border border-[#2E73C9]/20 text-[#235BA0] p-3 rounded-xl text-center text-sm font-semibold">
+                        A seat has been offered to you — pay to confirm
+                      </div>
+                      <Link href="/my-bookings" className="w-full">
+                        <Button variant="primary" className="w-full justify-center py-3">
+                          Go to My Bookings
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <Button 
+                      variant="primary" 
+                      size="lg" 
+                      onClick={handleBook} 
+                      disabled={booking}
+                      className="w-full justify-center py-4 text-base shadow-soft"
+                    >
+                      {booking ? "Processing..." : "Book Now"}
+                    </Button>
+                  )}
+                </div>
+
+                {message && (
+                  <FadeUp delay={0.1}>
+                    <div className={`mt-6 p-4 rounded-xl border flex gap-3 text-sm leading-relaxed
+                      ${messageType === "error" ? "bg-accent-coral/10 text-red-800 border-accent-coral/20" : 
+                        messageType === "success" ? "bg-accent-green/10 text-emerald-800 border-accent-green/20" : 
+                        "bg-[#2E73C9]/10 text-[#235BA0] border-[#2E73C9]/20"}`}
+                    >
+                      <div className="mt-0.5 shrink-0">
+                        {messageType === "error" ? <AlertCircle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">{message}</p>
+                        {messageType === "success" && (
+                          <Link href="/my-bookings" className="mt-2 text-emerald-900 underline font-semibold hover:text-emerald-700 transition-colors inline-block">
+                            Refresh status in My Bookings
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  </FadeUp>
+                )}
+              </div>
+            </FadeUp>
+          </div>
+        </div>
       </div>
     </div>
   );
