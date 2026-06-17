@@ -35,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider signInForceRedirectUrl="/" signUpForceRedirectUrl="/">
       <html lang="en">
         <body
           className={`${spaceGrotesk.variable} ${inter.variable} ${instrumentSerif.variable} font-sans antialiased`}

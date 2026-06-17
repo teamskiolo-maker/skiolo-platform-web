@@ -6,7 +6,7 @@ import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { FadeUp } from "@/components/motion/FadeUp";
 import { Button } from "@/components/ui/Button";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, BookOpen, CalendarCheck } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Logo } from "@/components/Logo";
 
@@ -17,8 +17,7 @@ export function Navbar() {
   const navLinks = [
     { name: "Courses", href: "/courses", public: true },
     { name: "Workshops", href: "/workshops", public: true },
-    { name: "My Courses", href: "/my-courses", public: false },
-    { name: "My Bookings", href: "/my-bookings", public: false },
+    { name: "Career", href: "/career", public: true },
   ];
 
   const DesktopLinks = () => (
@@ -76,7 +75,20 @@ export function Navbar() {
                 </Link>
               </SignedOut>
               <SignedIn>
-                <UserButton afterSignOutUrl="/" />
+                <UserButton afterSignOutUrl="/">
+                  <UserButton.MenuItems>
+                    <UserButton.Link
+                      label="My Courses"
+                      labelIcon={<BookOpen size={16} />}
+                      href="/my-courses"
+                    />
+                    <UserButton.Link
+                      label="My Bookings"
+                      labelIcon={<CalendarCheck size={16} />}
+                      href="/my-bookings"
+                    />
+                  </UserButton.MenuItems>
+                </UserButton>
               </SignedIn>
             </div>
 
@@ -117,6 +129,22 @@ export function Navbar() {
                 }
                 return content;
               })}
+              <SignedIn>
+                <Link 
+                  href="/my-courses" 
+                  className={`text-base font-medium ${pathname?.startsWith("/my-courses") ? "text-navy" : "text-ink-muted hover:text-ink"}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  My Courses
+                </Link>
+                <Link 
+                  href="/my-bookings" 
+                  className={`text-base font-medium ${pathname?.startsWith("/my-bookings") ? "text-navy" : "text-ink-muted hover:text-ink"}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  My Bookings
+                </Link>
+              </SignedIn>
               <div className="pt-4 border-t border-line flex flex-col gap-3">
                 <SignedOut>
                   <Link href="/sign-in" onClick={() => setIsMobileMenuOpen(false)}>
@@ -129,7 +157,20 @@ export function Navbar() {
                 <SignedIn>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-ink-muted">Account</span>
-                    <UserButton afterSignOutUrl="/" />
+                    <UserButton afterSignOutUrl="/">
+                      <UserButton.MenuItems>
+                        <UserButton.Link
+                          label="My Courses"
+                          labelIcon={<BookOpen size={16} />}
+                          href="/my-courses"
+                        />
+                        <UserButton.Link
+                          label="My Bookings"
+                          labelIcon={<CalendarCheck size={16} />}
+                          href="/my-bookings"
+                        />
+                      </UserButton.MenuItems>
+                    </UserButton>
                   </div>
                 </SignedIn>
               </div>
