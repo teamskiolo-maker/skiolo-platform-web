@@ -207,8 +207,8 @@ export default function Home() {
 
               {/* CTA */}
               <div className="text-center md:text-left">
-                {/* PLACEHOLDER CTA: No backend booking flow yet. Wired to WhatsApp for now. */}
-                <a href="https://wa.me/910000000000" target="_blank" rel="noopener noreferrer">
+                {/* CTA: Currently wired to WhatsApp */}
+                <a href="https://wa.me/918304807856?text=Hi%20SKIOLO%2C%20I%27d%20like%20to%20know%20more%20about%20your%20programs" target="_blank" rel="noopener noreferrer">
                   <Button variant="primary" size="lg" className="font-semibold text-base px-8">
                     Enquire about the program
                   </Button>

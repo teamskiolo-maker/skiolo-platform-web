@@ -27,16 +27,23 @@ export function MediaBanner({ imageUrl, title, variant = "course", className = "
   // Placeholder state
   const Icon = variant === "course" ? BookOpen : Users;
   
-  // Use a sleek, polished gradient
-  const gradientClass = variant === "course" 
-    ? "from-slate-100 to-slate-200 text-slate-500 border-slate-200" 
-    : "from-indigo-50 to-slate-100 text-indigo-400 border-indigo-100";
-
   return (
-    <div className={`relative overflow-hidden flex flex-col items-center justify-center bg-gradient-to-br border ${gradientClass} ${className}`}>
-      <div className="flex flex-col items-center gap-2 p-4 text-center">
-        <Icon className="w-10 h-10 opacity-70" strokeWidth={1.5} />
-        <span className="text-xs font-semibold tracking-wider uppercase opacity-60 line-clamp-1 max-w-[80%]">
+    <div className={`relative overflow-hidden flex flex-col items-center justify-center bg-gradient-to-br from-[#0A2350] to-[#0E2F66] text-white ${className}`}>
+      {/* Decorative accent dots */}
+      <div className="absolute top-4 left-4 flex gap-1">
+        <div className="w-1.5 h-1.5 rounded-full bg-accent-green/80" />
+        <div className="w-1.5 h-1.5 rounded-full bg-accent-amber/80" />
+        <div className="w-1.5 h-1.5 rounded-full bg-accent-coral/80" />
+      </div>
+      
+      {/* Subtle background glow */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="w-32 h-32 bg-white/5 rounded-full blur-2xl" />
+      </div>
+
+      <div className="flex flex-col items-center gap-3 p-4 text-center z-10">
+        <Icon className="w-12 h-12 text-white/30" strokeWidth={1.5} />
+        <span className="text-xs font-semibold tracking-wider uppercase text-white/50 line-clamp-1 max-w-[80%]">
           {title || "Untitled"}
         </span>
       </div>

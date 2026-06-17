@@ -19,9 +19,8 @@ export function FloatingActions() {
       </button>
 
       {/* WhatsApp Floating Button */}
-      {/* PLACEHOLDER: Update phone number to real SKIOLO WhatsApp number */}
       <a 
-        href="https://wa.me/910000000000" 
+        href="https://wa.me/918304807856?text=Hi%20SKIOLO%2C%20I%27d%20like%20to%20know%20more%20about%20your%20programs" 
         target="_blank" 
         rel="noopener noreferrer"
         className="w-14 h-14 rounded-full bg-[#25D366] text-white shadow-soft-lg flex items-center justify-center hover:scale-110 hover:bg-[#20bd5a] transition-all duration-300 group relative"
