@@ -54,33 +54,39 @@ export function Navbar() {
       <header className="w-full bg-paper/80 backdrop-blur border-b border-line relative">
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-accent-blue via-accent-green to-accent-coral" />
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-8">
+          {/* LEFT */}
+          <div className="flex items-center flex-1">
             <Logo className="h-8 w-auto" />
-            <nav className="hidden md:flex items-center gap-6">
-              <DesktopLinks />
-            </nav>
           </div>
           
-          <div className="hidden md:flex items-center gap-4">
-            <SignedOut>
-              <Link href="/sign-in">
-                <Button variant="secondary" size="sm">Sign in</Button>
-              </Link>
-              <Link href="/sign-up">
-                <Button variant="primary" size="sm">Get started</Button>
-              </Link>
-            </SignedOut>
-            <SignedIn>
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
-          </div>
+          {/* CENTER */}
+          <nav className="hidden md:flex items-center justify-center gap-6 shrink-0">
+            <DesktopLinks />
+          </nav>
+          
+          {/* RIGHT */}
+          <div className="flex items-center justify-end gap-4 flex-1">
+            <div className="hidden md:flex items-center gap-4">
+              <SignedOut>
+                <Link href="/sign-in">
+                  <Button variant="secondary" size="sm">Sign in</Button>
+                </Link>
+                <Link href="/sign-up">
+                  <Button variant="primary" size="sm">Get started</Button>
+                </Link>
+              </SignedOut>
+              <SignedIn>
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
+            </div>
 
-          <button 
-            className="md:hidden p-2 text-ink"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+            <button 
+              className="md:hidden p-2 text-ink"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
       </header>
 

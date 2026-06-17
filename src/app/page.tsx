@@ -148,6 +148,74 @@ export default function Home() {
               </Card>
             </FadeUp>
           </div>
+
+          {/* FLAGSHIP PROGRAM */}
+          <FadeUp delay={0.4} className="mt-8 max-w-4xl mx-auto">
+            <Card className="p-10 md:p-12 bg-white relative overflow-hidden border border-accent-blue/10 z-10 hover:border-accent-blue/20 transition-colors duration-300">
+              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-navy-tint/60 rounded-full blur-[80px] pointer-events-none -z-10 translate-x-1/3 -translate-y-1/3" />
+              
+              <div className="mb-10 text-center md:text-left">
+                <span className="uppercase tracking-widest text-xs font-semibold text-accent-blue font-sans block mb-4">
+                  FLAGSHIP PROGRAM &middot; 3 MONTHS
+                </span>
+                <h3 className="text-3xl md:text-4xl font-display font-bold text-ink mb-4">
+                  We set the system <span className="font-serif-accent text-navy font-normal italic">with you.</span>
+                </h3>
+                <p className="text-ink-muted text-lg max-w-2xl">
+                  A 3-month hands-on engagement where SKIOLO installs real operating systems into your business &mdash; reporting, structure, accountability &mdash; and transfers it to your team.
+                </p>
+              </div>
+
+              {/* THREE-PHASE PROGRESSION */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 mb-12 relative">
+                {/* Connecting line for desktop */}
+                <div className="hidden md:block absolute top-6 left-[16%] right-[16%] h-px bg-line -z-10" />
+                
+                {/* Phase 1 */}
+                <div className="flex flex-col items-start md:items-center text-left md:text-center relative bg-white md:bg-transparent">
+                  <div className="w-12 h-12 rounded-full bg-accent-coral/10 flex items-center justify-center mb-4 text-accent-coral font-display font-bold border border-accent-coral/20">
+                    01
+                  </div>
+                  <h4 className="font-display font-semibold text-ink mb-2">Month 1: I Do</h4>
+                  <p className="text-sm text-ink-muted leading-relaxed">
+                    Our team runs your systems directly &mdash; setting up proper reporting, team structures, and processes inside your business.
+                  </p>
+                </div>
+
+                {/* Phase 2 */}
+                <div className="flex flex-col items-start md:items-center text-left md:text-center relative bg-white md:bg-transparent">
+                  <div className="w-12 h-12 rounded-full bg-accent-amber/10 flex items-center justify-center mb-4 text-accent-amber font-display font-bold border border-accent-amber/20">
+                    02
+                  </div>
+                  <h4 className="font-display font-semibold text-ink mb-2">Month 2: We Do</h4>
+                  <p className="text-sm text-ink-muted leading-relaxed">
+                    We work alongside your team, running the systems together and coaching them in real time.
+                  </p>
+                </div>
+
+                {/* Phase 3 */}
+                <div className="flex flex-col items-start md:items-center text-left md:text-center relative bg-white md:bg-transparent">
+                  <div className="w-12 h-12 rounded-full bg-accent-green/10 flex items-center justify-center mb-4 text-accent-green font-display font-bold border border-accent-green/20">
+                    03
+                  </div>
+                  <h4 className="font-display font-semibold text-ink mb-2">Month 3: You Do</h4>
+                  <p className="text-sm text-ink-muted leading-relaxed">
+                    Your team takes full ownership and runs the system independently &mdash; with SKIOLO supporting from the side.
+                  </p>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="text-center md:text-left">
+                {/* PLACEHOLDER CTA: No backend booking flow yet. Wired to WhatsApp for now. */}
+                <a href="https://wa.me/910000000000" target="_blank" rel="noopener noreferrer">
+                  <Button variant="primary" size="lg" className="font-semibold text-base px-8">
+                    Enquire about the program
+                  </Button>
+                </a>
+              </div>
+            </Card>
+          </FadeUp>
         </div>
       </section>
 
