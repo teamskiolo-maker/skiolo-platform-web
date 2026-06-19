@@ -6,7 +6,7 @@ import { useAuth, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { apiFetch } from "@/lib/api";
 import { loadRazorpayScript } from "@/lib/razorpay";
-import { CourseTierBanner, CourseTier } from "@/components/CourseTierBanner";
+import { CourseTierBanner, CourseTier, computeTier } from "@/components/CourseTierBanner";
 import { BulletList } from "@/components/BulletList";
 import { FadeUp } from "@/components/motion/FadeUp";
 import { Button } from "@/components/ui/Button";
@@ -21,6 +21,7 @@ export default function CourseDetailPage() {
   const { user } = useUser();
 
   const [course, setCourse] = useState<any>(null);
+  const [allCourses, setAllCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [buying, setBuying] = useState(false);
   const [isEnrolled, setIsEnrolled] = useState(false);
@@ -45,17 +46,21 @@ export default function CourseDetailPage() {
   }, [slug, isSignedIn, getToken]);
 
   useEffect(() => {
-    async function loadCourse() {
+    async function loadData() {
       try {
-        const data = await apiFetch<any>(`/courses/${slug}`, { method: "GET" });
-        setCourse(data);
+        const [courseData, coursesData] = await Promise.all([
+          apiFetch<any>(`/courses/${slug}`, { method: "GET" }),
+          apiFetch<any[]>(`/courses`, { method: "GET" }),
+        ]);
+        setCourse(courseData);
+        setAllCourses(coursesData);
       } catch (err) {
-        console.error("Failed to load course", err);
+        console.error("Failed to load course data", err);
       } finally {
         setLoading(false);
       }
     }
-    loadCourse();
+    loadData();
   }, [slug]);
 
   const handleBuy = async () => {
@@ -94,24 +99,51 @@ export default function CourseDetailPage() {
         description: orderData.courseTitle,
         order_id: orderData.orderId,
         handler: function (response: any) {
-          toast.success("Payment received, confirming your enrollment shortly...", {
-            action: {
-              label: "Refresh access",
-              onClick: async () => {
-                try {
-                  const token = await getToken();
-                  if (!token) return;
-                  const access = await apiFetch<any>(`/courses/${slug}/access`, { method: "GET", token });
-                  setIsEnrolled(true);
-                  setAccessUrl(access.accessUrl);
-                  toast.success("Enrollment confirmed!");
-                } catch (err) {
-                  toast.info("Still processing, please check back in a moment.");
-                }
+          toast.success("Payment received! Confirming your enrollment...", { duration: 5000 });
+          
+          // Poll for access status
+          let retries = 0;
+          const maxRetries = 10;
+          
+          const pollAccess = async () => {
+            try {
+              const currentToken = await getToken();
+              if (!currentToken) return;
+              const access = await apiFetch<any>(`/courses/${slug}/access`, { method: "GET", token: currentToken });
+              
+              // If successful, update UI automatically
+              setIsEnrolled(true);
+              setAccessUrl(access.accessUrl);
+              toast.success("Enrollment confirmed! You now have access.");
+            } catch (err) {
+              retries++;
+              if (retries < maxRetries) {
+                setTimeout(pollAccess, 2000); // Wait 2s and try again
+              } else {
+                toast.info("Still processing. Please click 'Refresh access' or refresh the page in a moment.", {
+                  action: {
+                    label: "Refresh access",
+                    onClick: async () => {
+                      try {
+                        const t = await getToken();
+                        if (!t) return;
+                        const access = await apiFetch<any>(`/courses/${slug}/access`, { method: "GET", token: t });
+                        setIsEnrolled(true);
+                        setAccessUrl(access.accessUrl);
+                        toast.success("Enrollment confirmed!");
+                      } catch (e) {
+                        toast.error("Still processing... please wait.");
+                      }
+                    }
+                  },
+                  duration: 10000,
+                });
               }
-            },
-            duration: 10000,
-          });
+            }
+          };
+          
+          // Start polling after 2 seconds
+          setTimeout(pollAccess, 2000);
         },
         prefill: {
           email: user?.primaryEmailAddress?.emailAddress || "",
@@ -176,8 +208,8 @@ export default function CourseDetailPage() {
     maximumFractionDigits: 0,
   }).format(course.pricePaise / 100);
 
-  // Quick fallback tier calculation since we don't have the full list
-  const tier: CourseTier = course.pricePaise >= 1000000 ? "PREMIUM" : course.pricePaise >= 400000 ? "STANDARD" : "BASIC";
+  // Compute tier using the full list
+  const tier: CourseTier = computeTier(course, allCourses);
 
   return (
     <div className="min-h-screen bg-paper text-ink font-sans pb-32">

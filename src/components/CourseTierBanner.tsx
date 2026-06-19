@@ -3,6 +3,29 @@ import { BookOpen, Sparkles, Crown } from "lucide-react";
 
 export type CourseTier = "BASIC" | "STANDARD" | "PREMIUM";
 
+export function computeTier(course: any, allCourses: any[]): CourseTier {
+  if (allCourses.length === 0) return "BASIC";
+  if (allCourses.length <= 2) {
+    const sorted = [...allCourses].sort((a, b) => a.pricePaise - b.pricePaise);
+    return course.id === sorted[sorted.length - 1].id ? "PREMIUM" : "BASIC";
+  }
+
+  const prices = Array.from(new Set(allCourses.map(c => c.pricePaise))).sort((a, b) => a - b);
+  
+  if (prices.length === 1) return "STANDARD";
+  if (prices.length === 2) {
+    return course.pricePaise === prices[1] ? "PREMIUM" : "BASIC";
+  }
+
+  // 3 or more distinct prices, divide roughly into thirds
+  const basicThreshold = prices[Math.floor(prices.length / 3)];
+  const premiumThreshold = prices[Math.floor((prices.length * 2) / 3)];
+
+  if (course.pricePaise < basicThreshold) return "BASIC";
+  if (course.pricePaise >= premiumThreshold) return "PREMIUM";
+  return "STANDARD";
+}
+
 interface CourseTierBannerProps {
   tier: CourseTier;
   className?: string;
