@@ -10,11 +10,10 @@ import { Stagger } from "@/components/motion/Stagger";
 import { ChevronLeft, ChevronRight, Receipt } from "lucide-react";
 
 interface Payment {
-  id: string;
-  user?: { email: string };
-  course?: { title: string } | null;
-  workshop?: { title: string } | null;
+  paymentId: string;
+  email: string;
   purpose: "COURSE" | "WORKSHOP" | "MEETING";
+  title: string;
   amountPaise: number;
   status: "CREATED" | "PAID" | "FAILED";
   razorpayOrderId: string;
@@ -85,11 +84,7 @@ export default function PaymentsPage() {
     }).format(paise / 100);
   };
 
-  const getProductTitle = (p: Payment) => {
-    if (p.course?.title) return p.course.title;
-    if (p.workshop?.title) return p.workshop.title;
-    return "Unknown Product";
-  };
+
 
   const totalPages = data ? Math.ceil(data.total / pageSize) : 0;
 
@@ -152,13 +147,13 @@ export default function PaymentsPage() {
                 </thead>
                 <tbody className="divide-y divide-line">
                   {data?.payments.map((payment) => (
-                    <tr key={payment.id} className="hover:bg-paper-sunken transition-colors group">
+                    <tr key={payment.paymentId} className="hover:bg-paper-sunken transition-colors group">
                       <td className="px-4 py-4">
-                        <span className="font-medium text-ink">{payment.user?.email || "Unknown"}</span>
+                        <span className="font-medium text-ink">{payment.email || "Unknown"}</span>
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex flex-col">
-                          <span className="font-medium text-ink">{getProductTitle(payment)}</span>
+                          <span className="font-medium text-ink">{payment.title}</span>
                           <span className="text-xs text-ink-muted mt-0.5">
                             {payment.purpose} • <span className="font-mono text-[10px]">{payment.razorpayOrderId.slice(0,14)}...</span>
                           </span>
