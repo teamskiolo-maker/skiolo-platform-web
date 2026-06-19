@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { FadeUp } from "@/components/motion/FadeUp";
 import { Stagger } from "@/components/motion/Stagger";
 import { Search, ChevronLeft, ChevronRight, Users } from "lucide-react";
@@ -39,6 +41,7 @@ export default function UsersPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 8;
+  const [confirmState, setConfirmState] = useState<{ isOpen: boolean; userId: string; role: "ADMIN" | "STUDENT" | null; title: string; message: string; }>({ isOpen: false, userId: "", role: null, title: "", message: "" });
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -79,25 +82,36 @@ export default function UsersPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, debouncedSearch, getToken]);
 
-  const handleRoleChange = async (userId: string, currentRole: string) => {
-    const newRole = currentRole === "ADMIN" ? "STUDENT" : "ADMIN";
-    const confirmMsg = newRole === "ADMIN" 
-      ? "Are you sure you want to make this user an ADMIN?"
-      : "Are you sure you want to remove ADMIN rights from this user?";
-      
-    if (!window.confirm(confirmMsg)) return;
-
+  const executeRoleUpdate = async (userId: string, newRole: "ADMIN" | "STUDENT") => {
     try {
       const token = await getToken();
       await apiFetch(`/admin/users/${userId}/role`, {
         method: "PATCH",
         token,
-        body: { role: newRole }
+        body: { role: newRole },
       });
+      toast.success(newRole === "ADMIN" ? "User promoted to Admin." : "Admin privileges removed.");
       fetchUsers();
     } catch (err: any) {
-      alert(err.message || "Failed to update user role");
+      toast.error(err.message || "Failed to update user role");
+    } finally {
+      setConfirmState(s => ({ ...s, isOpen: false }));
     }
+  };
+
+  const handleUpdateRole = async (userId: string, currentRole: string) => {
+    const newRole = currentRole === "ADMIN" ? "STUDENT" : "ADMIN";
+    const confirmMsg = newRole === "ADMIN" 
+      ? "Are you sure you want to make this user an Admin? They will have full access to the dashboard."
+      : "Are you sure you want to remove Admin privileges from this user?";
+
+    setConfirmState({
+      isOpen: true,
+      userId,
+      role: newRole,
+      title: newRole === "ADMIN" ? "Promote to Admin" : "Remove Admin",
+      message: confirmMsg,
+    });
   };
 
   const formatDate = (isoString: string) => {
@@ -118,6 +132,19 @@ export default function UsersPage() {
           <p className="text-ink-muted mt-1 text-sm">Manage user roles and view their purchase history.</p>
         </div>
       </FadeUp>
+
+      <ConfirmDialog
+        isOpen={confirmState.isOpen}
+        title={confirmState.title}
+        message={confirmState.message}
+        onConfirm={() => {
+          if (confirmState.userId && confirmState.role) {
+            executeRoleUpdate(confirmState.userId, confirmState.role);
+          }
+        }}
+        onCancel={() => setConfirmState(s => ({ ...s, isOpen: false }))}
+        confirmLabel="Yes, continue"
+      />
 
       <FadeUp delay={0.1}>
         <Card className="p-4 sm:p-6">
@@ -201,7 +228,7 @@ export default function UsersPage() {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            onClick={() => handleRoleChange(user.id, user.role)}
+                            onClick={() => handleUpdateRole(user.id, user.role)}
                             className="text-accent-coral hover:text-accent-coral hover:bg-red-50"
                           >
                             Remove Admin
@@ -210,7 +237,7 @@ export default function UsersPage() {
                           <Button 
                             variant="secondary" 
                             size="sm"
-                            onClick={() => handleRoleChange(user.id, user.role)}
+                            onClick={() => handleUpdateRole(user.id, user.role)}
                             className="text-navy"
                           >
                             Make Admin

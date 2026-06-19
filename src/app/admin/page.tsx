@@ -91,6 +91,20 @@ export default function AdminDashboard() {
     }).format(paise / 100);
   };
 
+  const formatYAxisTick = (value: number) => {
+    if (value >= 100000) {
+      return `₹${(value / 100000).toFixed(1).replace(/\.0$/, '')}L`;
+    }
+    if (value >= 1000) {
+      return `₹${(value / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+    }
+    return `₹${value}`;
+  };
+
+  const truncateLabel = (label: string, maxLength = 18) => {
+    return label.length > maxLength ? label.substring(0, maxLength) + "..." : label;
+  };
+
   const chartDataArea = stats.revenueByMonth.map((item) => {
     const [year, month] = item.month.split("-");
     const date = new Date(parseInt(year), parseInt(month) - 1);
@@ -233,7 +247,7 @@ export default function AdminDashboard() {
             <div className="h-[300px] w-full">
               {chartDataArea.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartDataArea} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <AreaChart data={chartDataArea} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#0E2F66" stopOpacity={0.3} />
@@ -252,7 +266,8 @@ export default function AdminDashboard() {
                       axisLine={false} 
                       tickLine={false} 
                       tick={{ fill: '#6B6B70', fontSize: 12 }}
-                      tickFormatter={(value) => `₹${value}`}
+                      tickFormatter={formatYAxisTick}
+                      width={60}
                     />
                     <Tooltip content={<CustomTooltip />} />
                     <Area 
@@ -282,14 +297,14 @@ export default function AdminDashboard() {
             <div className="h-[300px] w-full">
               {chartDataBar.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartDataBar} layout="vertical" margin={{ top: 0, right: 0, left: 20, bottom: 0 }}>
+                  <BarChart data={chartDataBar} layout="vertical" margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#E8E6DF" />
                     <XAxis 
                       type="number"
                       axisLine={false} 
                       tickLine={false} 
                       tick={{ fill: '#6B6B70', fontSize: 12 }}
-                      tickFormatter={(value) => `₹${value}`}
+                      tickFormatter={formatYAxisTick}
                     />
                     <YAxis 
                       type="category" 
@@ -297,7 +312,8 @@ export default function AdminDashboard() {
                       axisLine={false} 
                       tickLine={false} 
                       tick={{ fill: '#0A0A0B', fontSize: 13, fontWeight: 500 }}
-                      width={120}
+                      tickFormatter={(value) => truncateLabel(value)}
+                      width={140}
                     />
                     <Tooltip content={<CustomTooltip />} cursor={{fill: '#F2F1EC'}} />
                     <Bar 

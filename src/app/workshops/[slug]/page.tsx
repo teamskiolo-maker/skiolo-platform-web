@@ -11,6 +11,7 @@ import { BulletList } from "@/components/BulletList";
 import { FadeUp } from "@/components/motion/FadeUp";
 import { Button } from "@/components/ui/Button";
 import { AlertCircle, CheckCircle2, ArrowLeft, CalendarDays, MapPin, Video } from "lucide-react";
+import { toast } from "sonner";
 
 export default function WorkshopDetailPage() {
   const params = useParams();
@@ -22,8 +23,6 @@ export default function WorkshopDetailPage() {
   const [workshop, setWorkshop] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [booking, setBooking] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error" | "info">("info");
   const [userBooking, setUserBooking] = useState<any>(null);
   const [checkingBooking, setCheckingBooking] = useState(false);
 
@@ -81,13 +80,11 @@ export default function WorkshopDetailPage() {
     }
 
     setBooking(true);
-    setMessage("");
 
     try {
       const token = await getToken();
       if (!token) {
-        setMessage("Authentication error. Please sign in again.");
-        setMessageType("error");
+        toast.error("Authentication error. Please sign in again.");
         setBooking(false);
         return;
       }
@@ -98,8 +95,7 @@ export default function WorkshopDetailPage() {
       });
 
       if (response.type === "WAITLISTED") {
-        setMessage(`This workshop is full. You've been added to the waitlist at position ${response.position}. We'll notify you if a seat opens.`);
-        setMessageType("info");
+        toast.info(`This workshop is full. You've been added to the waitlist at position ${response.position}. We'll notify you if a seat opens.`);
         setBooking(false);
         fetchUserBooking(workshop.id);
         return;
@@ -108,8 +104,7 @@ export default function WorkshopDetailPage() {
       if (response.type === "PAYMENT") {
         const scriptLoaded = await loadRazorpayScript();
         if (!scriptLoaded) {
-          setMessage("Failed to load payment gateway. Please try again.");
-          setMessageType("error");
+          toast.error("Failed to load payment gateway. Please try again.");
           setBooking(false);
           return;
         }
@@ -122,8 +117,13 @@ export default function WorkshopDetailPage() {
           description: response.workshopTitle,
           order_id: response.orderId,
           handler: async function (rzpRes: any) {
-            setMessage("Payment received, confirming your booking shortly...");
-            setMessageType("success");
+            toast.success("Payment received, confirming your booking shortly...", {
+              action: {
+                label: "Go to My Bookings",
+                onClick: () => router.push("/my-bookings")
+              },
+              duration: 10000,
+            });
             await fetchUserBooking(workshop.id);
           },
           prefill: {
@@ -134,16 +134,14 @@ export default function WorkshopDetailPage() {
 
         const rzp = new window.Razorpay(options);
         rzp.on("payment.failed", function (failRes: any) {
-          setMessage(`Payment failed: ${failRes.error.description}`);
-          setMessageType("error");
+          toast.error(`Payment failed: ${failRes.error.description}`);
         });
         rzp.open();
       }
 
     } catch (err: any) {
       console.error(err);
-      setMessage(err.message || "An error occurred during booking.");
-      setMessageType("error");
+      toast.error(err.message || "An error occurred during booking.");
     } finally {
       setBooking(false);
     }
@@ -325,28 +323,6 @@ export default function WorkshopDetailPage() {
                     </Button>
                   )}
                 </div>
-
-                {message && (
-                  <FadeUp delay={0.1}>
-                    <div className={`mt-6 p-4 rounded-xl border flex gap-3 text-sm leading-relaxed
-                      ${messageType === "error" ? "bg-accent-coral/10 text-red-800 border-accent-coral/20" : 
-                        messageType === "success" ? "bg-accent-green/10 text-emerald-800 border-accent-green/20" : 
-                        "bg-[#2E73C9]/10 text-[#235BA0] border-[#2E73C9]/20"}`}
-                    >
-                      <div className="mt-0.5 shrink-0">
-                        {messageType === "error" ? <AlertCircle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{message}</p>
-                        {messageType === "success" && (
-                          <Link href="/my-bookings" className="mt-2 text-emerald-900 underline font-semibold hover:text-emerald-700 transition-colors inline-block">
-                            Refresh status in My Bookings
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                  </FadeUp>
-                )}
               </div>
             </FadeUp>
           </div>

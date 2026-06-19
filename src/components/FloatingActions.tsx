@@ -1,6 +1,7 @@
 "use client";
 
 import { Sparkles, MessageCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export function FloatingActions() {
   return (
@@ -9,7 +10,7 @@ export function FloatingActions() {
       {/* Replace onClick behavior with real chatbot integration when ready */}
       <button 
         className="w-14 h-14 rounded-full bg-navy text-white shadow-soft-lg flex items-center justify-center hover:scale-110 hover:bg-navy-hover transition-all duration-300 group relative"
-        onClick={() => alert("AI assistant coming soon!")}
+        onClick={() => toast.info("AI assistant coming soon!")}
         aria-label="Open AI Assistant"
       >
         <Sparkles size={24} />

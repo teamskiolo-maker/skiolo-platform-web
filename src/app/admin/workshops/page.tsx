@@ -3,6 +3,7 @@
 import { useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { toast } from "sonner";
 
 interface Workshop {
   id: string;
@@ -121,7 +122,7 @@ export default function WorkshopsPage() {
       });
       fetchWorkshops();
     } catch (err) {
-      alert("Failed to toggle publish status");
+      toast.error("Failed to toggle publish status");
     }
   };
 

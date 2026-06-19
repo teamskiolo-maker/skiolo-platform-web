@@ -11,6 +11,7 @@ import { BulletList } from "@/components/BulletList";
 import { FadeUp } from "@/components/motion/FadeUp";
 import { Button } from "@/components/ui/Button";
 import { AlertCircle, CheckCircle2, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 export default function CourseDetailPage() {
   const params = useParams();
@@ -22,7 +23,6 @@ export default function CourseDetailPage() {
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [buying, setBuying] = useState(false);
-  const [message, setMessage] = useState("");
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [accessUrl, setAccessUrl] = useState<string | null>(null);
 
@@ -65,19 +65,18 @@ export default function CourseDetailPage() {
     }
 
     setBuying(true);
-    setMessage("");
 
     try {
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
-        setMessage("Failed to load payment gateway. Please try again.");
+        toast.error("Failed to load payment gateway. Please try again.");
         setBuying(false);
         return;
       }
 
       const token = await getToken();
       if (!token) {
-        setMessage("Authentication error. Please sign in again.");
+        toast.error("Authentication error. Please sign in again.");
         setBuying(false);
         return;
       }
@@ -95,7 +94,24 @@ export default function CourseDetailPage() {
         description: orderData.courseTitle,
         order_id: orderData.orderId,
         handler: function (response: any) {
-          setMessage("Payment received, confirming your enrollment shortly...");
+          toast.success("Payment received, confirming your enrollment shortly...", {
+            action: {
+              label: "Refresh access",
+              onClick: async () => {
+                try {
+                  const token = await getToken();
+                  if (!token) return;
+                  const access = await apiFetch<any>(`/courses/${slug}/access`, { method: "GET", token });
+                  setIsEnrolled(true);
+                  setAccessUrl(access.accessUrl);
+                  toast.success("Enrollment confirmed!");
+                } catch (err) {
+                  toast.info("Still processing, please check back in a moment.");
+                }
+              }
+            },
+            duration: 10000,
+          });
         },
         prefill: {
           email: user?.primaryEmailAddress?.emailAddress || "",
@@ -105,13 +121,13 @@ export default function CourseDetailPage() {
 
       const rzp = new window.Razorpay(options);
       rzp.on("payment.failed", function (response: any) {
-        setMessage(`Payment failed: ${response.error.description}`);
+        toast.error(`Payment failed: ${response.error.description}`);
       });
       rzp.open();
 
     } catch (err: any) {
       console.error(err);
-      setMessage(err.message || "An error occurred during checkout.");
+      toast.error(err.message || "An error occurred during checkout.");
     } finally {
       setBuying(false);
     }
@@ -121,7 +137,7 @@ export default function CourseDetailPage() {
     if (accessUrl) {
       window.open(accessUrl, "_blank");
     } else {
-      setMessage("Course link will be available soon.");
+      toast.info("Course link will be available soon.");
     }
   };
 
@@ -253,44 +269,6 @@ export default function CourseDetailPage() {
                   </p>
                 </div>
 
-                {/* Status Messages */}
-                {message && (
-                  <FadeUp delay={0.1}>
-                    <div className={`mt-6 p-4 rounded-xl border flex gap-3 text-sm leading-relaxed
-                      ${message.includes("failed") || message.includes("error") || message.includes("Failed") 
-                        ? "bg-accent-coral/10 text-red-800 border-accent-coral/20" 
-                        : "bg-accent-green/10 text-emerald-800 border-accent-green/20"}`}
-                    >
-                      <div className="mt-0.5 shrink-0">
-                        {message.includes("failed") || message.includes("error") || message.includes("Failed") 
-                          ? <AlertCircle className="w-4 h-4" />
-                          : <CheckCircle2 className="w-4 h-4" />}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{message}</p>
-                        {message.includes("Payment received") && !isEnrolled && (
-                          <button 
-                            onClick={async () => {
-                              try {
-                                const token = await getToken();
-                                if (!token) return;
-                                const access = await apiFetch<any>(`/courses/${slug}/access`, { method: "GET", token });
-                                setIsEnrolled(true);
-                                setAccessUrl(access.accessUrl);
-                                setMessage("Enrollment confirmed!");
-                              } catch (err) {
-                                setMessage("Payment received, confirming your enrollment shortly... (still processing)");
-                              }
-                            }}
-                            className="mt-2 text-emerald-900 underline font-semibold hover:text-emerald-700 transition-colors inline-block"
-                          >
-                            Refresh access
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </FadeUp>
-                )}
               </div>
             </FadeUp>
           </div>

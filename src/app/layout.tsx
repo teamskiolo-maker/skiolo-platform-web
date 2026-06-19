@@ -23,6 +23,7 @@ const instrumentSerif = Instrument_Serif({
 });
 
 import { PublicLayoutWrapper } from "@/components/layout/PublicLayoutWrapper";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "SKIOLO Platform",
@@ -43,6 +44,22 @@ export default function RootLayout({
           <PublicLayoutWrapper>
             {children}
           </PublicLayoutWrapper>
+          <Toaster 
+            position="top-center" 
+            toastOptions={{
+              style: {
+                background: '#FAFAF8',
+                color: '#0A0A0B',
+                border: '1px solid #E8E6DF',
+                fontFamily: 'var(--font-inter)'
+              },
+              classNames: {
+                toast: 'rounded-xl shadow-soft',
+                error: 'bg-red-50 text-red-900 border-red-200',
+                success: 'bg-emerald-50 text-emerald-900 border-emerald-200'
+              }
+            }}
+          />
         </body>
       </html>
     </ClerkProvider>

@@ -1,10 +1,12 @@
 "use client";
 
-import { UserButton } from "@clerk/nextjs";
+import { useUser, UserButton, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Logo } from "@/components/Logo";
+import { Button } from "@/components/ui/Button";
+import { apiFetch } from "@/lib/api";
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -14,7 +16,8 @@ import {
   CalendarCheck,
   Menu,
   X,
-  ArrowLeft
+  ArrowLeft,
+  ShieldAlert
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -24,6 +27,37 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, isLoaded: isUserLoaded } = useUser();
+  const { getToken, isLoaded: isAuthLoaded } = useAuth();
+  
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    async function checkRole() {
+      if (!isAuthLoaded || !isUserLoaded) return;
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
+      try {
+        const token = await getToken();
+        if (!token) {
+          setIsAdmin(false);
+          return;
+        }
+        // Use an existing endpoint that is safe or hit /me if exists. 
+        // We know we can fetch stats or users, but simpler: fetch the user's own profile or check role.
+        // The backend requires requireRole('ADMIN') on all /admin/* routes.
+        // Let's just try to fetch a lightweight admin route, like GET /admin/users with page 1 limit 1, or stats.
+        // If it throws 403 Forbidden, they are not admin.
+        await apiFetch("/admin/stats", { method: "GET", token });
+        setIsAdmin(true);
+      } catch (err: any) {
+        setIsAdmin(false);
+      }
+    }
+    checkRole();
+  }, [user, isAuthLoaded, isUserLoaded, getToken]);
 
   const links = [
     { name: "Overview", href: "/admin", icon: LayoutDashboard },
@@ -35,6 +69,35 @@ export default function AdminLayout({
   ];
 
   const currentPage = links.find(l => l.href === pathname)?.name || "Dashboard";
+
+  if (!isUserLoaded || !isAuthLoaded || isAdmin === null) {
+    return (
+      <div className="min-h-screen bg-paper flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-line border-t-navy rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (isAdmin === false) {
+    return (
+      <div className="min-h-screen bg-paper text-ink flex flex-col items-center justify-center p-6">
+        <div className="max-w-md w-full bg-paper-card border border-line rounded-2xl2 p-8 shadow-soft-lg flex flex-col items-center text-center">
+          <div className="w-16 h-16 rounded-full bg-navy/10 flex items-center justify-center mb-6 text-navy">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+          <h1 className="text-3xl font-display font-bold text-ink mb-3">Access Denied</h1>
+          <p className="text-ink-muted leading-relaxed mb-8">
+            You don&apos;t have permission to view this area. This section is restricted to administrators only.
+          </p>
+          <Link href="/">
+            <Button variant="primary" className="w-full justify-center shadow-soft text-base py-3">
+              Back to Home
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-background font-sans text-ink">
