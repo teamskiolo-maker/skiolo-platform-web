@@ -2,6 +2,7 @@
 
 import { useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { apiFetch } from "@/lib/api";
 import { Card } from "@/components/ui/Card";
 import { FadeUp } from "@/components/motion/FadeUp";
@@ -124,91 +125,101 @@ export default function AdminDashboard() {
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <FadeUp delay={0}>
-          <Card className="p-5 flex flex-col justify-between h-full relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-              <IndianRupee size={48} className="text-navy" />
-            </div>
-            <div className="flex items-center gap-2 text-ink-muted mb-2">
-              <IndianRupee size={18} />
-              <h3 className="text-sm font-medium">Total Revenue</h3>
-            </div>
-            <div>
-              <p className="text-3xl font-display font-bold tracking-tight2 text-navy-deep">
-                {formatRupee(stats.totalRevenuePaise)}
-              </p>
-            </div>
-          </Card>
+          <Link href="/admin/payments" className="block h-full group">
+            <Card className="p-5 flex flex-col justify-between h-full relative overflow-hidden group-hover:border-navy transition-colors">
+              <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                <IndianRupee size={48} className="text-navy" />
+              </div>
+              <div className="flex items-center gap-2 text-ink-muted mb-2">
+                <IndianRupee size={18} />
+                <h3 className="text-sm font-medium">Total Revenue</h3>
+              </div>
+              <div>
+                <p className="text-3xl font-display font-bold tracking-tight2 text-navy-deep">
+                  {formatRupee(stats.totalRevenuePaise)}
+                </p>
+              </div>
+            </Card>
+          </Link>
         </FadeUp>
 
         <FadeUp delay={0.1}>
-          <Card className="p-5 flex flex-col justify-between h-full relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none">
-              <TrendingUp size={48} className="text-ink" />
-            </div>
-            <div className="flex items-center gap-2 text-ink-muted mb-2">
-              <TrendingUp size={18} />
-              <h3 className="text-sm font-medium">This Month</h3>
-            </div>
-            <div>
-              <p className="text-2xl font-semibold tracking-tight2 text-ink">
-                {formatRupee(stats.revenueThisMonthPaise)}
-              </p>
-            </div>
-          </Card>
+          <Link href="/admin/payments" className="block h-full group">
+            <Card className="p-5 flex flex-col justify-between h-full relative overflow-hidden group-hover:border-navy transition-colors">
+              <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none">
+                <TrendingUp size={48} className="text-ink" />
+              </div>
+              <div className="flex items-center gap-2 text-ink-muted mb-2">
+                <TrendingUp size={18} />
+                <h3 className="text-sm font-medium">This Month</h3>
+              </div>
+              <div>
+                <p className="text-2xl font-semibold tracking-tight2 text-ink">
+                  {formatRupee(stats.revenueThisMonthPaise)}
+                </p>
+              </div>
+            </Card>
+          </Link>
         </FadeUp>
 
         <FadeUp delay={0.2}>
-          <Card className="p-5 flex flex-col justify-between h-full relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none">
-              <Users size={48} className="text-ink" />
-            </div>
-            <div className="flex items-center gap-2 text-ink-muted mb-2">
-              <Users size={18} />
-              <h3 className="text-sm font-medium">Total Users</h3>
-            </div>
-            <div>
-              <p className="text-2xl font-semibold tracking-tight2 text-ink">
-                {stats.totalUsers}
-              </p>
-              <p className="text-xs text-accent-green font-medium mt-1">
-                +{stats.newUsersThisMonth} this month
-              </p>
-            </div>
-          </Card>
+          <Link href="/admin/users" className="block h-full group">
+            <Card className="p-5 flex flex-col justify-between h-full relative overflow-hidden group-hover:border-navy transition-colors">
+              <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none">
+                <Users size={48} className="text-ink" />
+              </div>
+              <div className="flex items-center gap-2 text-ink-muted mb-2">
+                <Users size={18} />
+                <h3 className="text-sm font-medium">Total Users</h3>
+              </div>
+              <div>
+                <p className="text-2xl font-semibold tracking-tight2 text-ink">
+                  {stats.totalUsers}
+                </p>
+                <p className="text-xs text-accent-green font-medium mt-1">
+                  +{stats.newUsersThisMonth} this month
+                </p>
+              </div>
+            </Card>
+          </Link>
         </FadeUp>
 
         <FadeUp delay={0.3}>
-          <Card className="p-5 flex flex-col justify-between h-full relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none">
-              <BookOpen size={48} className="text-ink" />
-            </div>
-            <div className="flex items-center gap-2 text-ink-muted mb-2">
-              <BookOpen size={18} />
-              <h3 className="text-sm font-medium">Enrollments</h3>
-            </div>
-            <div>
-              <p className="text-2xl font-semibold tracking-tight2 text-ink">
-                {stats.totalEnrollments}
-              </p>
-            </div>
-          </Card>
+          <Link href="/admin/payments" className="block h-full group">
+            <Card className="p-5 flex flex-col justify-between h-full relative overflow-hidden group-hover:border-navy transition-colors">
+              <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none">
+                <BookOpen size={48} className="text-ink" />
+              </div>
+              <div className="flex items-center gap-2 text-ink-muted mb-2">
+                <BookOpen size={18} />
+                <h3 className="text-sm font-medium">Enrollments</h3>
+              </div>
+              <div>
+                <p className="text-2xl font-semibold tracking-tight2 text-ink">
+                  {stats.totalEnrollments}
+                </p>
+              </div>
+            </Card>
+          </Link>
         </FadeUp>
 
         <FadeUp delay={0.4}>
-          <Card className="p-5 flex flex-col justify-between h-full relative overflow-hidden">
-             <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none">
-              <CalendarCheck size={48} className="text-ink" />
-            </div>
-            <div className="flex items-center gap-2 text-ink-muted mb-2">
-              <CalendarCheck size={18} />
-              <h3 className="text-sm font-medium">Bookings</h3>
-            </div>
-            <div>
-              <p className="text-2xl font-semibold tracking-tight2 text-ink">
-                {stats.totalBookings}
-              </p>
-            </div>
-          </Card>
+          <Link href="/admin/bookings" className="block h-full group">
+            <Card className="p-5 flex flex-col justify-between h-full relative overflow-hidden group-hover:border-navy transition-colors">
+              <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none">
+                <CalendarCheck size={48} className="text-ink" />
+              </div>
+              <div className="flex items-center gap-2 text-ink-muted mb-2">
+                <CalendarCheck size={18} />
+                <h3 className="text-sm font-medium">Bookings</h3>
+              </div>
+              <div>
+                <p className="text-2xl font-semibold tracking-tight2 text-ink">
+                  {stats.totalBookings}
+                </p>
+              </div>
+            </Card>
+          </Link>
         </FadeUp>
       </div>
 
