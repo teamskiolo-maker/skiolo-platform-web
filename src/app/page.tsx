@@ -8,37 +8,37 @@ import { FloatingActions } from "@/components/FloatingActions";
 
 const testimonials = [
   {
-    image: "/testimonials/Nizar Ahammed.jpeg",
+    image: "/testimonials/nizar-ahammed.jpeg",
     name: "Nizar Ahammed",
     title: "CEO, Lago Group",
     quote: "SKIOLO brought real structure to how we operate. The systems they set up gave our team clarity we never had before — everyone finally knows their role and what to deliver."
   },
   {
-    image: "/testimonials/Abdul Kalam Asad.jpeg",
+    image: "/testimonials/abdul-kalam-asad.jpeg",
     name: "Abdul Kalam Asad",
     title: "CEO, Focus Motors",
     quote: "Before SKIOLO, too much depended on me personally. They helped us build proper processes and reporting, and now the business runs smoothly without me chasing every detail."
   },
   {
-    image: "/testimonials/Aseem.jpeg",
+    image: "/testimonials/aseem.jpeg",
     name: "Aseem",
     title: "CEO, Deco Italia",
     quote: "The clarity SKIOLO delivers is exceptional. They documented our workflows and put systems in place that made our whole operation more organized and scalable."
   },
   {
-    image: "/testimonials/Nikhil KG.jpeg",
+    image: "/testimonials/nikhil-kg.jpeg",
     name: "Nikhil KG",
     title: "CEO, Money Talk",
     quote: "Working with SKIOLO was a turning point. Their approach to systems and SOPs transformed how we manage our team and track performance. Highly recommended for any growing business."
   },
   {
-    image: "/testimonials/Niyas Cholakkal.jpeg",
+    image: "/testimonials/niyas-cholakkal.jpeg",
     name: "Niyas Cholakkal",
     title: "CEO, Toptan Finistore",
     quote: "SKIOLO understands what a business actually needs to scale. The structure and accountability they installed have made a real difference to our day-to-day operations."
   },
   {
-    image: "/testimonials/Shibin Chettuvai.jpeg",
+    image: "/testimonials/shibin-chettuvai.jpeg",
     name: "Shibin Chettuvai",
     title: "CEO, Ed-Dream Distance Education",
     quote: "Genuinely impressed with SKIOLO's work. They set up systems that brought order and direction to our organization. Our processes are clearer and our team is far more efficient now."
@@ -286,7 +286,7 @@ export default function Home() {
                   </div>
                   <div className="flex items-center gap-4">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={encodeURI(t.image)} alt={t.name} className="w-14 h-14 rounded-full object-cover shrink-0" />
+                    <img src={t.image} alt={t.name} className="w-14 h-14 rounded-full object-cover shrink-0" />
                     <div>
                       <p className="font-semibold text-ink font-display">{t.name}</p>
                       <p className="text-sm text-ink-muted">{t.title}</p>
