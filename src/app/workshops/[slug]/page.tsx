@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, usePathname } from "next/navigation";
 import { useAuth, useUser, SignedIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { apiFetch } from "@/lib/api";
@@ -18,6 +18,7 @@ export default function WorkshopDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
   const router = useRouter();
+  const pathname = usePathname();
   const { isSignedIn, getToken } = useAuth();
   const { user } = useUser();
 
@@ -77,7 +78,7 @@ export default function WorkshopDetailPage() {
 
   const handleBook = async () => {
     if (!isSignedIn) {
-      router.push("/sign-in");
+      router.push(`/sign-in?redirect_url=${encodeURIComponent(pathname)}`);
       return;
     }
 
