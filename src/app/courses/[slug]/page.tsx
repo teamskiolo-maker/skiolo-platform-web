@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useAuth, useUser, useClerk } from "@clerk/nextjs";
 import Link from "next/link";
 import { apiFetch } from "@/lib/api";
 import { loadRazorpayScript } from "@/lib/razorpay";
@@ -21,6 +21,7 @@ export default function CourseDetailPage() {
   const pathname = usePathname();
   const { isSignedIn, getToken } = useAuth();
   const { user } = useUser();
+  const { redirectToSignIn } = useClerk();
 
   const [course, setCourse] = useState<any>(null);
   const [allCourses, setAllCourses] = useState<any[]>([]);
@@ -68,7 +69,7 @@ export default function CourseDetailPage() {
 
   const handleBuy = async () => {
     if (!isSignedIn) {
-      router.push(`/sign-in?redirect_url=${encodeURIComponent(pathname)}`);
+      redirectToSignIn({ signInForceRedirectUrl: pathname, signUpForceRedirectUrl: pathname });
       return;
     }
 

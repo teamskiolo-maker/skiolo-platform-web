@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
-import { useAuth, useUser, SignedIn } from "@clerk/nextjs";
+import { useAuth, useUser, SignedIn, useClerk } from "@clerk/nextjs";
 import Link from "next/link";
 import { apiFetch } from "@/lib/api";
 import { loadRazorpayScript } from "@/lib/razorpay";
@@ -21,6 +21,7 @@ export default function WorkshopDetailPage() {
   const pathname = usePathname();
   const { isSignedIn, getToken } = useAuth();
   const { user } = useUser();
+  const { redirectToSignIn } = useClerk();
 
   const [workshop, setWorkshop] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -78,7 +79,7 @@ export default function WorkshopDetailPage() {
 
   const handleBook = async () => {
     if (!isSignedIn) {
-      router.push(`/sign-in?redirect_url=${encodeURIComponent(pathname)}`);
+      redirectToSignIn({ signInForceRedirectUrl: pathname, signUpForceRedirectUrl: pathname });
       return;
     }
 

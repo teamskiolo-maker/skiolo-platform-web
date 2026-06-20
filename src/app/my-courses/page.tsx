@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import { apiFetch } from "@/lib/api";
-import { CourseTierBanner, CourseTier } from "@/components/CourseTierBanner";
+import { CourseTierBanner, CourseTier, computeTier } from "@/components/CourseTierBanner";
 import { FadeUp } from "@/components/motion/FadeUp";
 import { Stagger } from "@/components/motion/Stagger";
 import { Button } from "@/components/ui/Button";
@@ -13,6 +13,7 @@ import { BookOpen } from "lucide-react";
 export default function MyCoursesPage() {
   const { isLoaded, isSignedIn, getToken } = useAuth();
   const [courses, setCourses] = useState<any[]>([]);
+  const [allCourses, setAllCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,8 +22,12 @@ export default function MyCoursesPage() {
       try {
         const token = await getToken();
         if (token) {
-          const data = await apiFetch<any[]>("/me/courses", { method: "GET", token });
-          setCourses(data);
+          const [myCoursesData, allCoursesData] = await Promise.all([
+            apiFetch<any[]>("/me/courses", { method: "GET", token }),
+            apiFetch<any[]>("/courses", { method: "GET" })
+          ]);
+          setCourses(myCoursesData);
+          setAllCourses(allCoursesData);
         }
       } catch (err) {
         console.error("Failed to load my courses", err);
@@ -43,10 +48,7 @@ export default function MyCoursesPage() {
     return <RedirectToSignIn />;
   }
 
-  const getTier = (pricePaise?: number): CourseTier => {
-    if (!pricePaise) return "STANDARD";
-    return pricePaise >= 1000000 ? "PREMIUM" : pricePaise >= 400000 ? "STANDARD" : "BASIC";
-  };
+
 
   return (
     <div className="min-h-screen bg-paper text-ink font-sans pb-32">
@@ -70,7 +72,8 @@ export default function MyCoursesPage() {
         ) : (
           <Stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {courses.map((course) => {
-              const tier = getTier(course.pricePaise);
+              const fullCourse = allCourses.find(c => c.id === course.id || c.slug === course.slug) || course;
+              const tier = computeTier(fullCourse, allCourses);
               return (
                 <FadeUp key={course.id} className="h-full">
                   <div className="relative h-full flex flex-col bg-paper-card border border-line rounded-2xl2 overflow-hidden shadow-soft transition-all duration-300 hover:shadow-soft-lg hover:-translate-y-1">
