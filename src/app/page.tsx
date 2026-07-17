@@ -45,6 +45,20 @@ const testimonials = [
   }
 ];
 
+const clients = [
+  "p6_i11_x138.png",
+  "p1_i02_x36.png","p1_i07_x38.png","p1_i09_x40.png","p1_i10_x41.png","p1_i11_x42.png",
+  "p1_i15_x46.png","p1_i16_x47.png","p1_i24_x296.png","p1_i26_x301.png","p1_i27_x303.png",
+  "p2_i04_x56.png","p2_i05_x57.png","p2_i06_x58.png","p2_i07_x59.png","p2_i08_x60.png",
+  "p2_i09_x61.png","p2_i10_x62.png","p2_i11_x63.png","p2_i13_x64.png","p2_i17_x68.png",
+  "p2_i18_x69.png","p2_i26_x273.png","p3_i03_x77.png","p3_i04_x78.png","p3_i05_x79.png",
+  "p3_i06_x80.png","p3_i08_x82.png","p3_i10_x84.png","p3_i19_x242.png","p4_i00_x103.png",
+  "p4_i01_x104.png","p4_i02_x105.png","p4_i03_x106.png","p4_i04_x107.png","p4_i07_x110.png",
+  "p5_i04_x123.png","p5_i05_x124.png","p5_i06_x125.png","p6_i02_x133.png","p6_i04_x135.png",
+  "p6_i05_x136.png","p6_i06_x137.png","p6_i13_x140.png","p6_i14_x141.png",
+  "p7_i00_x145.png"
+].map((f) => `/clients/${f}`);
+
 export default function Home() {
   return (
     <div className="flex flex-col w-full bg-paper">
@@ -255,6 +269,34 @@ export default function Home() {
               </div>
             </Card>
           </FadeUp>
+        </div>
+      </section>
+
+      {/* 3.5 CLIENT LOGOS - Auto-scrolling marquee */}
+      <section className="w-full py-16 bg-paper border-t border-line overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6 mb-10 text-center">
+          <span className="uppercase tracking-widest text-xs font-semibold text-accent-blue font-sans block">
+            &mdash; TRUSTED BY
+          </span>
+        </div>
+
+        <div className="relative w-full">
+          {/* Fade edges */}
+          <div className="pointer-events-none absolute left-0 top-0 h-full w-24 z-10 bg-gradient-to-r from-paper to-transparent" />
+          <div className="pointer-events-none absolute right-0 top-0 h-full w-24 z-10 bg-gradient-to-l from-paper to-transparent" />
+
+          <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
+            {[...clients, ...clients].map((src, idx) => (
+              <div key={idx} className="flex items-center justify-center mx-8 shrink-0" style={{ width: 140 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={src}
+                  alt="Client logo"
+                  className="max-h-14 w-auto object-contain grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-300"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
