@@ -57,7 +57,7 @@ const clients = [
   "p5_i04_x123.png","p5_i05_x124.png","p5_i06_x125.png","p6_i02_x133.png","p6_i04_x135.png",
   "p6_i05_x136.png","p6_i06_x137.png","p6_i13_x140.png","p6_i14_x141.png",
   "p7_i00_x145.png"
-].map((f) => `/clients/${f}`);
+].map((f) => `/clients/clients/${f}`);
 
 export default function Home() {
   return (
