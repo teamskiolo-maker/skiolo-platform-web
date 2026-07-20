@@ -47,7 +47,7 @@ const testimonials = [
 
 const clients = [
   "p6_i11_x138.png",
-  "p1_i02_x36.png","p1_i07_x38.png","p1_i09_x40.png","p1_i10_x41.png","p1_i11_x42.png",
+  ,"p1_i10_x41.png","p1_i11_x42.png",
   "p1_i15_x46.png","p1_i16_x47.png","p1_i24_x296.png","p1_i26_x301.png","p1_i27_x303.png",
   "p2_i04_x56.png","p2_i05_x57.png","p2_i06_x58.png","p2_i07_x59.png","p2_i08_x60.png",
   "p2_i09_x61.png","p2_i10_x62.png","p2_i11_x63.png","p2_i13_x64.png","p2_i17_x68.png",
@@ -292,7 +292,7 @@ export default function Home() {
                 <img
                   src={src}
                   alt="Client logo"
-                  className="max-h-14 w-auto object-contain grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-300"
+                  className="max-h-14 w-auto object-contain opacity-90 hover:opacity-100 transition-all duration-300"
                 />
               </div>
             ))}
